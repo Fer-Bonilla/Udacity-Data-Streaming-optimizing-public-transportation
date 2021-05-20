@@ -1,0 +1,8 @@
+
+*.pyc
+producers/.ipynb_checkpoints/
+consumers/.ipynb_checkpoints/
+consumers/models/.ipynb_checkpoints/
+producers/models/.ipynb_checkpoints/
+producers/models/schemas/.ipynb_checkpoints/
+startup/.ipynb_checkpoints/
