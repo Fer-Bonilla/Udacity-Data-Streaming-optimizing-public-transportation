@@ -33,16 +33,17 @@ class TransformedStation(faust.Record):
 #   places it into a new topic with only the necessary information.
 app = faust.App("stations-stream", broker="kafka://localhost:9092", store="memory://")
 # TODO: Define the input Kafka Topic. Hint: What topic did Kafka Connect output to?
-topic = app.topic("stations", value_type=Station)
+topic = app.topic("org.chicago.cta.stations", value_type=Station)
 # TODO: Define the output Kafka Topic
-out_topic = app.topic("org.chicago.cta.stations.table", partitions=1)
+out_topic = app.topic("org.chicago.cta.stations.table.v1", partitions=1)
 # TODO: Define a Faust Table
 table = app.Table(
-    "cta.stations.table",
+    "org.chicago.cta.stations.table.v1",
     default=TransformedStation,
     partitions=1,
     changelog_topic=out_topic,
 )
+
 
 #
 #
@@ -51,29 +52,13 @@ table = app.Table(
 # then you would set the `line` of the `TransformedStation` record to the string `"red"`
 #
 #
-
 @app.agent(topic)
-async def process(stream):
-    async for event in stream:
-        line = None
-        if event.red is True:
-            line = "red"
-        elif event.blue is True:
-            line = "blue"
-        elif event.green is True:
-            line = "green"
-
-        if line is None:
-            print("== alert no line!!!! ", event)
-            continue
-
-        table[event.station_id] = TransformedStation(
-            station_id=event.station_id,
-            station_name=event.station_name,
-            order=event.order,
-            line=line,
-        )
-
+async def faust_stream(stations):
+    async for station in stations:
+        table[station.station_id] = TransformedStation(station_id = station.station_id, 
+                                                       station_name = station.station_name,
+                                                       order = station.order,
+                                                       line = "red" if station.red else "blue" if station.blue else "green")
 
 if __name__ == "__main__":
     app.main()

@@ -38,10 +38,10 @@ class Turnstile(Producer):
         #
         #
         super().__init__(
-            "org.chicago.cta.turnstile", # TODO: Come up with a better topic name
+            topic_name="org.chicago.cta.turnstile", # TODO: Come up with a better topic name
             key_schema=Turnstile.key_schema,
-            value_schema=Turnstile.value_schema,
-            num_partitions=5,
+            value_schema=Turnstile.value_schema, #TODO: Uncomment once schema is defined
+            num_partitions=3,
             num_replicas=1,
         )
         self.station = station
@@ -49,33 +49,32 @@ class Turnstile(Producer):
 
     def run(self, timestamp, time_step):
         """Simulates riders entering through the turnstile."""
-
         try:
             num_entries = self.turnstile_hardware.get_entries(timestamp, time_step)
-
-        #
-        #
-        # TODO: Complete this function by emitting a message to the turnstile topic for the number
-        # of entries that were calculated
-        #
-        #
-        
-        
+            #
+            #
+            # TODO: Complete this function by emitting a message to the turnstile topic for the number
+            # of entries that were calculated
+            #
+            #
+            
             logger.info(" %s people entered this station %s ", num_entries, self.station.name)
+            
             for _ in range(num_entries):
                 self.producer.produce(
                     topic=self.topic_name,
+                    key_schema=self.key_schema,
+                    value_schema=self.value_schema,
                     key={"timestamp": self.time_millis()},
                     value={
-                        "station_id": self.station.station_id,
-                        "station_name": self.station.name,
-                        "line": self.station.color.name,
+                        # TODO: Configure this
+                        'station_id': self.station.station_id,
+                        'station_name': self.station.name,
+                        'line': self.station.color.name,
                     },
                 )
             
-            logger.debug("%s passengers in station %s at %s", num_entries, self.station.name, timestamp.isoformat()) 
-        
         except Exception as e:
             logger.info("Turnstile failed to write to topic {} with exception {}".format(self.topic_name, e))
             logger.info("schema : {}".format(Turnstile.value_schema))
-            logger.info("value : {}, {}, {}".format(self.station.station_id, self.station.name, self.station.color.name))
+            logger.info("value : {}, {}, {}".format(self.station.station_id, self.station.name, self.station.color.name))            

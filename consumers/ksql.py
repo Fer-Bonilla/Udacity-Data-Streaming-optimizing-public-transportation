@@ -27,13 +27,14 @@ CREATE TABLE turnstile (
     station_name VARCHAR,
     line VARCHAR
 ) WITH (
-    kafka_topic = 'org.chicago.cta.turnstile',
-    value_format = 'avro',
-    key = 'station_id'
+    KAFKA_TOPIC = 'org.chicago.cta.turnstile',
+    VALUE_FORMAT = 'AVRO',
+    KEY='station_id'
 );
+
 CREATE TABLE turnstile_summary
-WITH (value_format = 'json') AS
-    SELECT station_id, COUNT(station_id) AS count
+WITH (VALUE_FORMAT = 'JSON') AS
+    SELECT station_id , COUNT(station_id) AS count
     FROM turnstile
     GROUP BY station_id;
 """
@@ -45,7 +46,7 @@ def execute_statement():
         return
 
     logging.debug("executing ksql statement...")
-    
+
     resp = requests.post(
             f"{KSQL_URL}/ksql",
             headers={"Content-Type": "application/vnd.ksql.v1+json",
@@ -53,11 +54,11 @@ def execute_statement():
             data=json.dumps(
                 {
                     "ksql": KSQL_STATEMENT,
-                    "streamsProperties": {"ksql.streams.auto.offset.reset": "earliest"}
+                    "streamsProperties": {"ksql.streams.auto.offset.reset": "earliest"},
                 }
-            )
-        )    
-    
+            ),
+        )
+
     # Ensure that a 2XX status code was returned
     resp.raise_for_status()
 

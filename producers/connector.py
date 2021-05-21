@@ -1,7 +1,9 @@
 """Configures a Kafka Connector for Postgres Station data"""
 import json
 import logging
+
 import requests
+
 
 logger = logging.getLogger(__name__)
 
@@ -23,37 +25,36 @@ def configure_connector():
     # using incrementing mode, with `stop_id` as the incrementing column name.
     # Make sure to think about what an appropriate topic prefix would be, and how frequently Kafka
     # Connect should run this connector (hint: not very often!)
-    logger.info("connector code not completed skipping connector creation")
+
     resp = requests.post(
-       KAFKA_CONNECT_URL,
-       headers={"Content-Type": "application/json"},
-       data=json.dumps({
-           "name": CONNECTOR_NAME,
-           "config": {
-               "connector.class": "io.confluent.connect.jdbc.JdbcSourceConnector",
-               "key.converter": "org.apache.kafka.connect.json.JsonConverter",
-               "key.converter.schemas.enable": "false",
-               "value.converter": "org.apache.kafka.connect.json.JsonConverter",
-               "value.converter.schemas.enable": "false",
-               "batch.max.rows": "500",
-               # TODO
-               "connection.url": "jdbc:postgresql://localhost:5432/cta",
-               # TODO
-               "connection.user": "cta_admin",
-               # TODO
-               "connection.password": "chicago",
-               # TODO
-               "table.whitelist": "stations",
-               # TODO
-               "mode": "incrementing",
-               # TODO
-               "incrementing.column.name": "stop_id",
-               # TODO
-               "topic.prefix": "org.chicago.cta.",
-               # TODO
-               "poll.interval.ms": "500000",
-           }
-       }),
+        KAFKA_CONNECT_URL,
+        headers={"Content-Type": "application/json"},
+        data=json.dumps({
+            "name": CONNECTOR_NAME,
+            "config": {
+                "connector.class": "io.confluent.connect.jdbc.JdbcSourceConnector",
+                "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+                "key.converter.schemas.enable": "false",
+                "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+                "value.converter.schemas.enable": "false",
+                "batch.max.rows": "500",
+                "connection.url": "jdbc:postgresql://localhost:5432/cta",
+    #            # TODO
+                "connection.user": "cta_admin",
+    #            # TODO
+                "connection.password": "chicago",
+    #            # TODO
+                "table.whitelist": CONNECTOR_NAME,
+    #            # TODO
+                "mode": "incrementing",
+    #            # TODO
+                "incrementing.column.name": "stop_id",
+    #            # TODO
+                "topic.prefix": "org.chicago.cta.",
+    #            # TODO
+                "poll.interval.ms": "9000",
+            }
+        }),
     )
 
     ## Ensure a healthy response was given

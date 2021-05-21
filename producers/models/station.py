@@ -37,13 +37,15 @@ class Station(Producer):
         # replicas
         #
         #
-        topic_name = f"{station_name}" # TODO: Come up with a better topic name
+        #topic_name = f"{station_name}" # TODO: Come up with a better topic name
+        topic_name = 'org.chicago.cta.station.arrivals.v1' 
+        
         super().__init__(
-            topic_name="org.chicago.cta.station.arrivals",
+            topic_name,
             key_schema=Station.key_schema,
             value_schema=Station.value_schema,
-            num_partitions=1,
-            num_replicas=1,            
+            num_partitions=2,
+            num_replicas=1,
         )
 
         self.station_id = int(station_id)
@@ -62,11 +64,11 @@ class Station(Producer):
         # TODO: Complete this function by producing an arrival message to Kafka
         #
         #
+
         self.producer.produce(
             topic=self.topic_name,
             key={"timestamp": self.time_millis()},
             value={
-                # TODO: Configure this
                 'station_id': self.station_id,
                 'train_id': train.train_id,
                 'direction': direction,

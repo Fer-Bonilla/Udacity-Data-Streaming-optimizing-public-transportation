@@ -1,7 +1,7 @@
 {
-  "namespace": "com.udacity",
   "type": "record",
   "name": "weather.value",
+  "namespace": "org.chicago.cta",
   "fields": [
     {
       "name": "temperature",
